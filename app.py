@@ -8,8 +8,8 @@ from reportlab.pdfgen import canvas
 # Configuração da página no celular
 st.set_page_config(page_title="Gerador de Pallets", page_icon="📦", layout="centered")
 
-st.title("📦 Sistema de Pallets Oficial")
-st.write("Preencha os dados abaixo para gerar o PDF das etiquetas.")
+st.title("📦 Sistema de Identificação")
+st.write("Preencha os dados abaixo para gerar o PDF das identificações.")
 
 # Campos de digitação na tela do celular
 nome_carga = st.text_input("1. NOME DA CARGA:").strip().upper()
