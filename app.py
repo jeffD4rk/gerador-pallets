@@ -10,7 +10,7 @@ from reportlab.pdfgen import canvas
 st.set_page_config(page_title="Gerador de Pallets", page_icon="📦", layout="centered")
 
 st.title("📦 Sistema de Pallets Oficial")
-st.write("Preencha os dados e veja a pré-visualização antes de baixar.")
+st.write("Preencha os dados e veja a pré-visualização abaixo.")
 
 # Campos de digitação na tela do celular
 nome_carga = st.text_input("1. NOME DA CARGA:").strip().upper()
@@ -19,9 +19,9 @@ total_folhas = st.number_input("3. QUANTIDADE DE PALLETS NORMAIS:", min_value=0,
 total_chocos = st.number_input("4. CHOCOS ADICIONAIS:", min_value=0, value=0, step=1)
 
 if st.button("GERAR DOCUMENTO", type="primary"):
-    if not nome_carga or not list(nome_carga):
+    if not nome_carga:
         st.warning("Por favor, digite o Nome da Carga.")
-    elif not list(onda_carga):
+    elif not onda_carga:
         st.warning("Por favor, digite o Número da Onda.")
     elif total_folhas == 0 and total_chocos == 0:
         st.warning("Digite uma quantidade para Pallets Normais ou para Chocos.")
@@ -38,6 +38,7 @@ if st.button("GERAR DOCUMENTO", type="primary"):
             pdf.setFillColor(colors.HexColor("#0F172A"))
             pdf.drawCentredString(largura / 2, altura - 70, "IDENTIFICAÇÃO DE PALLET")
             
+            # Blocos de fundo
             pdf.setFillColor(colors.HexColor("#F8FAFC"))
             pdf.roundRect(55, altura - 260, largura - 110, 120, 12, stroke=0, fill=1)
             pdf.setFont("Helvetica-Bold", 20)
@@ -58,23 +59,26 @@ if st.button("GERAR DOCUMENTO", type="primary"):
             
             pdf.setFillColor(colors.HexColor("#0F172A"))
             if total_chocos > 0:
-                pdf.setFont("Helvetica-Bold", 75)
+                # ⬇️ FONTE REDUZIDA PARA CABER O TEXTO "+ CHOCO"
+                pdf.setFont("Helvetica-Bold", 60) 
                 texto_contagem = f"{numero_pagina} / {total_folhas} + {total_chocos} CHOCO"
             else:
                 pdf.setFont("Helvetica-Bold", 90)
                 texto_contagem = f"{numero_pagina} / {total_folhas}"
+            
             pdf.drawCentredString(largura / 2, 45, texto_contagem)
             
             if numero_pagina < total_folhas or total_chocos > 0:
                 pdf.showPage()
 
-        # 🍫 PARTE 2: PALLETS DE CHOCOLATE
+        # 🍫 PARTE 2: PALLETS DE CHOCOLATE (Sequência final)
         for j in range(total_chocos):
             numero_choco = j + 1
             pdf.setFont("Helvetica-Bold", 44)
             pdf.setFillColor(colors.HexColor("#0F172A"))
             pdf.drawCentredString(largura / 2, altura - 70, "IDENTIFICAÇÃO DE PALLET")
             
+            # Blocos de fundo
             pdf.setFillColor(colors.HexColor("#F8FAFC"))
             pdf.roundRect(55, altura - 260, largura - 110, 120, 12, stroke=0, fill=1)
             pdf.setFont("Helvetica-Bold", 20)
@@ -94,12 +98,14 @@ if st.button("GERAR DOCUMENTO", type="primary"):
             pdf.drawCentredString(largura / 2, 182, onda_carga)
             
             pdf.setFillColor(colors.HexColor("#0F172A"))
+            # ⬇️ FONTE REDUZIDA PARA O TEXTO LONGO DO CHOCOLATE
             if total_folhas > 0:
-                pdf.setFont("Helvetica-Bold", 65)
+                pdf.setFont("Helvetica-Bold", 55) # Tamanho 55 para garantir leitura total
                 texto_contagem_choco = f"{total_folhas} PALLETS + {numero_choco} / {total_chocos} CHOCO"
             else:
-                pdf.setFont("Helvetica-Bold", 80)
+                pdf.setFont("Helvetica-Bold", 75)
                 texto_contagem_choco = f"{numero_choco} / {total_chocos} CHOCO"
+            
             pdf.drawCentredString(largura / 2, 50, texto_contagem_choco)
             
             if numero_choco < total_chocos:
@@ -111,7 +117,6 @@ if st.button("GERAR DOCUMENTO", type="primary"):
 
         st.success("✅ Documento gerado com sucesso!")
         
-        # 📥 Botão Oficial de Baixar/Imprimir
         st.download_button(
             label="📥 BAIXAR / IMPRIMIR ETIQUETAS",
             data=pdf_bytes,
@@ -120,13 +125,9 @@ if st.button("GERAR DOCUMENTO", type="primary"):
             use_container_width=True
         )
         
-        # 👁️ SISTEMA DE PRÉ-VISUALIZAÇÃO EM TELA
+        # Pré-visualização
         st.write("---")
-        st.subheader("👁️ Pré-Visualização das Etiquetas:")
-        
-        # Converte o arquivo para uma string que o navegador do celular lê na hora
+        st.subheader("👁️ Pré-Visualização:")
         base64_pdf = base64.b64encode(pdf_bytes).decode('utf-8')
         pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="400" type="application/pdf"></iframe>'
-        
-        # Renderiza a janela de visualização do PDF
         st.markdown(pdf_display, unsafe_allow_html=True)
