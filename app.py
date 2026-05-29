@@ -1,5 +1,6 @@
 import streamlit as st
 import io
+import base64
 from datetime import datetime
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib import colors
@@ -8,8 +9,8 @@ from reportlab.pdfgen import canvas
 # Configuração da página no celular
 st.set_page_config(page_title="Gerador de Pallets", page_icon="📦", layout="centered")
 
-st.title("📦 Sistema de Identificação")
-st.write("Preencha os dados abaixo para gerar o PDF das identificações.")
+st.title("📦 Sistema de Pallets Oficial")
+st.write("Preencha os dados e veja a pré-visualização antes de baixar.")
 
 # Campos de digitação na tela do celular
 nome_carga = st.text_input("1. NOME DA CARGA:").strip().upper()
@@ -25,7 +26,7 @@ if st.button("GERAR DOCUMENTO", type="primary"):
     elif total_folhas == 0 and total_chocos == 0:
         st.warning("Digite uma quantidade para Pallets Normais ou para Chocos.")
     else:
-        # Cria o PDF na memória do celular
+        # Cria o PDF na memória do servidor
         buffer = io.BytesIO()
         pdf = canvas.Canvas(buffer, pagesize=landscape(A4))
         largura, altura = landscape(A4)
@@ -106,12 +107,26 @@ if st.button("GERAR DOCUMENTO", type="primary"):
 
         pdf.save()
         buffer.seek(0)
+        pdf_bytes = buffer.getvalue()
 
-        # Cria o botão de download que o celular entende
-        st.success("✅ PDF Gerado com sucesso!")
+        st.success("✅ Documento gerado com sucesso!")
+        
+        # 📥 Botão Oficial de Baixar/Imprimir
         st.download_button(
-            label="📥 BAIXAR E ABRIR PDF",
-            data=buffer,
+            label="📥 BAIXAR / IMPRIMIR ETIQUETAS",
+            data=pdf_bytes,
             file_name=f"pallet_{nome_carga}.pdf",
-            mime="application/pdf"
+            mime="application/pdf",
+            use_container_width=True
         )
+        
+        # 👁️ SISTEMA DE PRÉ-VISUALIZAÇÃO EM TELA
+        st.write("---")
+        st.subheader("👁️ Pré-Visualização das Etiquetas:")
+        
+        # Converte o arquivo para uma string que o navegador do celular lê na hora
+        base64_pdf = base64.b64encode(pdf_bytes).decode('utf-8')
+        pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="400" type="application/pdf"></iframe>'
+        
+        # Renderiza a janela de visualização do PDF
+        st.markdown(pdf_display, unsafe_allow_html=True)
