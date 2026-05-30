@@ -9,7 +9,7 @@ from reportlab.pdfgen import canvas
 # Configuração da página no celular
 st.set_page_config(page_title="Gerador de Pallets", page_icon="📦", layout="centered")
 
-st.title("📦 Sistema de Pallets Oficial")
+st.title("📦 Sistema de identificação")
 st.write("Preencha os dados e veja a pré-visualização abaixo.")
 
 # Campos de digitação na tela do celular
